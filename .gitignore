@@ -11,4 +11,3 @@ certbot/
 .local-ssl/
 nginx/.htpasswd
 nginx/.htpasswd_testers
-lightrag/

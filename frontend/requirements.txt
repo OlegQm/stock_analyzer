@@ -6,3 +6,5 @@ seaborn==0.13.2
 requests==2.32.4
 python-dotenv==1.1.0
 plotly==6.1.2
+yfinance==0.2.62
+scipy==1.15.3
