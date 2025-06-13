@@ -3,7 +3,7 @@ from app.models import HypothesisTestRequest
 from app.utils.hypothesis_testing import run_hypothesis_test
 
 async def hypothesis_test_service(request: HypothesisTestRequest):
-    """Выполнить статистический тест гипотезы"""
+    """Run a statistical hypothesis test"""
     try:
         result = run_hypothesis_test(
             request.symbols, 

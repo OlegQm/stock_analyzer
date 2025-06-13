@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/stocks/hypothesis-test")
 async def hypothesis_test(request: HypothesisTestRequest):
-    """Выполнить статистический тест гипотезы"""
+    """Run a statistical hypothesis test"""
     return await hypothesis_test_service(request)

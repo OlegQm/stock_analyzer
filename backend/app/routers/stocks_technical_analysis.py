@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/stocks/technical-analysis")
 async def technical_analysis(request: TechnicalAnalysisRequest):
-    """Выполнить технический анализ акции"""
+    """Perform technical analysis of a stock"""
     return await technical_analysis_service(request)

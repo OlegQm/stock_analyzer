@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-# Добавляем путь к родительской директории
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.app_client import (
     get_available_stocks,
@@ -13,16 +12,14 @@ from utils.app_client import (
 )
 
 st.set_page_config(
-    page_title="Технический анализ", page_icon="📉", layout="wide"
+    page_title="Technical Analysis", page_icon="📉", layout="wide"
 )
 
-st.title("📉 Технический анализ")
+st.title("📉 Technical Analysis")
 
-# Настройка стиля matplotlib
 plt.style.use("ggplot")
 
 
-# Функция для отрисовки свечного графика на определенной оси (ax)
 def plot_candlestick(ax, df):
     width = 0.6
     width2 = width * 0.8
@@ -80,7 +77,6 @@ def plot_candlestick(ax, df):
     ax.set_ylabel("Цена ($)")
 
 
-# Боковая панель
 with st.sidebar:
     st.header("Параметры")
     available_stocks = get_available_stocks()
@@ -124,7 +120,6 @@ with st.sidebar:
 
     analyze_button = st.button("Выполнить анализ")
 
-# Основная часть
 if analyze_button:
     with st.spinner("Выполнение технического анализа..."):
         stock_data = get_stock_data(selected_stock, selected_period, "1d")
@@ -138,7 +133,6 @@ if analyze_button:
         df.set_index("Date", inplace=True)
         indicators = tech_analysis["indicators"]
 
-        # Определяем количество подграфиков
         num_subplots = 1 + use_rsi + use_macd
         height_ratios = [0.6] + [0.2] * (num_subplots - 1)
 
@@ -149,11 +143,9 @@ if analyze_button:
             sharex=True,
             gridspec_kw={"height_ratios": height_ratios},
         )
-        # Если только один подграфик, axes не будет массивом
         if num_subplots == 1:
             axes = [axes]
 
-        # --- График цены и индикаторов на нем ---
         ax1 = axes[0]
         plot_candlestick(ax1, df)
         ax1.set_title(f"Цена {selected_stock}")
@@ -194,7 +186,6 @@ if analyze_button:
                 alpha=0.1,
             )
 
-        # --- Графики RSI и MACD ---
         current_ax_index = 1
         if use_rsi:
             ax_rsi = axes[current_ax_index]
@@ -227,7 +218,6 @@ if analyze_button:
             ax_macd.set_ylabel("MACD")
             current_ax_index += 1
 
-        # Общая настройка
         fig.suptitle(
             f"Технический анализ {selected_stock} - {selected_period_display}",
             fontsize=16,
@@ -239,7 +229,6 @@ if analyze_button:
         st.subheader("Интерпретация индикаторов")
         
         with st.expander("Показать интерпретацию"):
-            # Получаем последние значения индикаторов
             last_close = df['Close'].iloc[-1]
             
             if use_sma:

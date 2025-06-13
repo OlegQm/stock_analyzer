@@ -5,20 +5,20 @@ import streamlit as st
 BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8000")
 
 def get_available_stocks():
-    """Получить список доступных акций"""
+    """Get the list of available stocks"""
     try:
         response = requests.get(f"{BACKEND_URL}/api/stocks/available", timeout=20)
         if response.status_code == 200:
             return response.json()["stocks"]
         else:
-            st.error(f"Ошибка при получении списка акций: {response.status_code}")
+            st.error(f"Error retrieving stock list: {response.status_code}")
             return []
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return []
 
 def get_stock_data(symbol, period="1y", interval="1d"):
-    """Получить данные акции"""
+    """Get stock data"""
     try:
         payload = {
             "symbol": symbol,
@@ -33,14 +33,14 @@ def get_stock_data(symbol, period="1y", interval="1d"):
         if response.status_code == 200:
             return response.json()
         else:
-            st.error(f"Ошибка при получении данных акции: {response.status_code}")
+            st.error(f"Error retrieving stock data: {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return None
 
 def get_technical_analysis(symbol, period="1y", interval="1d", indicators=None):
-    """Получить технический анализ акции"""
+    """Get technical analysis for a stock"""
     if indicators is None:
         indicators = ["sma", "ema", "rsi", "macd"]
 
@@ -59,14 +59,14 @@ def get_technical_analysis(symbol, period="1y", interval="1d", indicators=None):
         if response.status_code == 200:
             return response.json()
         else:
-            st.error(f"Ошибка при получении технического анализа: {response.status_code}")
+            st.error(f"Error retrieving technical analysis: {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return None
 
 def get_nlp_analysis(query, symbols, period="1y"):
-    """Получить NLP анализ акций"""
+    """Get NLP analysis of stocks"""
     try:
         payload = {
             "query": query,
@@ -81,14 +81,14 @@ def get_nlp_analysis(query, symbols, period="1y"):
         if response.status_code == 200:
             return response.json()
         else:
-            st.error(f"Ошибка при получении NLP анализа: {response.status_code}")
+            st.error(f"Error retrieving NLP analysis: {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return None
 
 def run_hypothesis_test(symbols, test_type, period="1y", alpha=0.05):
-    """Выполнить тест гипотезы"""
+    """Run a hypothesis test"""
     try:
         payload = {
             "symbols": symbols,
@@ -104,10 +104,10 @@ def run_hypothesis_test(symbols, test_type, period="1y", alpha=0.05):
         if response.status_code == 200:
             return response.json()
         else:
-            st.error(f"Ошибка при выполнении теста гипотезы: {response.status_code}")
+            st.error(f"Error running hypothesis test: {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return None
 
 def get_visualization_data(
@@ -117,7 +117,7 @@ def get_visualization_data(
     interval="1d",
     indicators=None
 ):
-    """Получить данные для визуализации"""
+    """Get data for visualization"""
     try:
         payload = {
             "symbols": symbols,
@@ -134,8 +134,8 @@ def get_visualization_data(
         if response.status_code == 200:
             return response.json()
         else:
-            st.error(f"Ошибка при получении данных для визуализации: {response.status_code}")
+            st.error(f"Error retrieving data for visualization: {response.status_code}")
             return None
     except Exception as e:
-        st.error(f"Ошибка при подключении к API: {e}")
+        st.error(f"API connection error: {e}")
         return None

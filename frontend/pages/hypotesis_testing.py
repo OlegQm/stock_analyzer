@@ -6,119 +6,110 @@ from scipy import stats
 import sys
 import os
 
-# Добавляем путь к родительской директории для импорта api_client
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.app_client import (
     get_available_stocks,
     run_hypothesis_test,
-    get_stock_data,  # Импортируем для получения данных для графика
+    get_stock_data,  
 )
 
 st.set_page_config(
-    page_title="Тестирование гипотез", page_icon="🧪", layout="wide"
+    page_title="Hypothesis Testing", page_icon="🧪", layout="wide"
 )
 
-st.title("🧪 Тестирование финансовых гипотез")
+st.title("🧪 Financial Hypothesis Testing")
 
-# Устанавливаем стиль для графиков Matplotlib
 plt.style.use("ggplot")
 
-# --- Боковая панель для выбора параметров ---
 with st.sidebar:
-    st.header("Параметры теста")
+    st.header("Test parameters")
 
-    # Получаем список доступных акций с бэкенда
+    
     available_stocks = get_available_stocks()
     stock_options = {
         stock["symbol"]: f"{stock['symbol']} - {stock['name']}"
         for stock in available_stocks
     }
 
-    # Выбор типа теста
+    
     test_type = st.selectbox(
-        "Тип теста",
+        "Test type",
         options=["normality", "correlation", "mean_comparison"],
         format_func=lambda x: {
-            "normality": "Тест на нормальность",
-            "correlation": "Тест на корреляцию",
-            "mean_comparison": "Сравнение средней доходности",
+            "normality": "Normality test",
+            "correlation": "Correlation test",
+            "mean_comparison": "Mean comparison",
         }.get(x, x),
     )
 
-    # Выбор акций в зависимости от типа теста
+    
     if test_type == "normality":
-        # Для теста на нормальность нужна одна акция
         selected_symbol1 = st.selectbox(
-            "Выберите акцию",
+            "Select a stock",
             options=list(stock_options.keys()),
             format_func=lambda x: stock_options[x],
         )
         selected_symbols = [selected_symbol1]
     else:
-        # Для других тестов нужны две акции
         selected_symbol1 = st.selectbox(
-            "Первая акция",
+            "First stock",
             options=list(stock_options.keys()),
             format_func=lambda x: stock_options[x],
         )
-        # Исключаем первую акцию из списка для второй
-        remaining_options = {
-            k: v for k, v in stock_options.items() if k != selected_symbol1
-        }
+        remaining_options = {k: v for k, v in stock_options.items() if k != selected_symbol1}
         selected_symbol2 = st.selectbox(
-            "Вторая акция",
+            "Second stock",
             options=list(remaining_options.keys()),
             format_func=lambda x: stock_options[x],
         )
         selected_symbols = [selected_symbol1, selected_symbol2]
 
-    # Выбор периода
-    period_options = {"1 год": "1y", "2 года": "2y", "5 лет": "5y"}
+    
+    period_options = {"1 year": "1y", "2 years": "2y", "5 years": "5y"}
     selected_period_display = st.selectbox(
-        "Выберите период", options=list(period_options.keys()), index=0
+        "Select period", options=list(period_options.keys()), index=0
     )
     selected_period = period_options[selected_period_display]
 
-    # Уровень значимости
-    alpha = st.slider("Уровень значимости (alpha)", 0.01, 0.10, 0.05, 0.01)
+    
+    alpha = st.slider("Significance level (alpha)", 0.01, 0.10, 0.05, 0.01)
 
-    # Кнопка для выполнения теста
-    test_button = st.button("Выполнить тест")
+    
+    test_button = st.button("Run test")
 
-# --- Основная часть страницы ---
 if test_button:
-    with st.spinner("Выполнение статистического теста..."):
-        # Выполняем тест гипотезы через API
+    with st.spinner("Running statistical test..."):
+        
         test_result = run_hypothesis_test(
             selected_symbols, test_type, selected_period, alpha
         )
 
     if test_result and "error" not in test_result:
-        st.subheader("Результаты теста")
+        st.subheader("Test results")
 
-        # --- Отображение результатов для теста на нормальность ---
+        
         if test_type == "normality":
             st.write(
-                f"**Тест на нормальность распределения доходности для {selected_symbols[0]}**"
+                f"**Normality test for returns of {selected_symbols[0]}**"
             )
-            st.write(f"Статистика теста (Шапиро-Уилка): {test_result['statistic']:.4f}")
-            st.write(f"P-значение: {test_result['p_value']:.4f}")
-            st.write(f"Уровень значимости (alpha): {alpha}")
+            st.write(f"Shapiro-Wilk statistic: {test_result['statistic']:.4f}")
+            st.write(f"P-value: {test_result['p_value']:.4f}")
+            st.write(f"Significance level (alpha): {alpha}")
 
-            # Вывод результата
+            
             if test_result["p_value"] > alpha:
                 st.success(
-                    f"Распределение доходности акции {selected_symbols[0]} является нормальным."
+                    f"Return distribution of {selected_symbols[0]} is normal."
                 )
             else:
                 st.warning(
-                    f"Распределение доходности акции {selected_symbols[0]} не является нормальным."
+                    f"Return distribution of {selected_symbols[0]} is not normal."
                 )
             st.write(test_result["conclusion"])
 
-            # Добавляем визуализацию
-            st.subheader("Визуализация распределения")
-            with st.spinner("Загрузка данных для графика..."):
+            
+            st.subheader("Distribution visualization")
+            with st.spinner("Loading data for chart..."):
                 data = get_stock_data(
                     selected_symbols[0], selected_period, "1d"
                 )
@@ -127,7 +118,7 @@ if test_button:
                     df["Returns"] = df["Close"].pct_change().dropna()
                     returns = df["Returns"].fillna(0)
 
-                    # Строим гистограмму и кривую нормального распределения
+                    
                     fig, ax = plt.subplots(figsize=(10, 6))
                     ax.hist(
                         returns,
@@ -135,10 +126,10 @@ if test_button:
                         density=True,
                         alpha=0.6,
                         color="g",
-                        label="Гистограмма доходности",
+                        label="Return histogram",
                     )
 
-                    # Накладываем кривую нормального распределения
+                    
                     mu, std = stats.norm.fit(returns)
                     xmin, xmax = plt.xlim()
                     x = np.linspace(xmin, xmax, 100)
@@ -148,120 +139,120 @@ if test_button:
                         p,
                         "k",
                         linewidth=2,
-                        label="Нормальное распределение",
+                        label="Normal distribution",
                     )
 
                     ax.set_title(
-                        f"Распределение доходности {selected_symbols[0]}"
+                        f"Return distribution {selected_symbols[0]}"
                     )
-                    ax.set_xlabel("Дневная доходность")
-                    ax.set_ylabel("Плотность")
+                    ax.set_xlabel("Daily return")
+                    ax.set_ylabel("Density")
                     ax.legend()
                     st.pyplot(fig)
 
-            # Добавляем пояснение
+            
             st.info(
                 """
-            **Что это значит?**
-            Тест на нормальность проверяет, соответствует ли распределение доходности акции нормальному распределению (колоколообразной кривой).
-            - Если распределение нормальное, это означает, что доходность акции предсказуема и соответствует классическим финансовым моделям.
-            - Если распределение не нормальное, это может указывать на наличие "толстых хвостов" (более частые экстремальные значения), что важно учитывать при оценке рисков.
+            **What does this mean?**
+            The normality test checks whether the return distribution follows a bell curve.
+            - If it is normal, returns are predictable and align with classic financial models.
+            - If not, heavy tails may be present, which is important for risk assessment.
             """
             )
 
-        # --- Отображение результатов для теста на корреляцию ---
+        
         elif test_type == "correlation":
             st.write(
-                f"**Тест на корреляцию доходности акций {selected_symbols[0]} и {selected_symbols[1]}**"
+                f"**Correlation test for returns of {selected_symbols[0]} and {selected_symbols[1]}**"
             )
             st.write(
-                f"Коэффициент корреляции (Пирсона): {test_result['statistic']:.4f}"
+                f"Pearson correlation coefficient: {test_result['statistic']:.4f}"
             )
-            st.write(f"P-значение: {test_result['p_value']:.4f}")
-            st.write(f"Уровень значимости (alpha): {alpha}")
+            st.write(f"P-value: {test_result['p_value']:.4f}")
+            st.write(f"Significance level (alpha): {alpha}")
 
-            # Вывод результата
+            
             if abs(test_result["statistic"]) > 0.7:
                 if test_result["statistic"] > 0:
                     st.warning(
-                        f"Акции {selected_symbols[0]} и {selected_symbols[1]} имеют сильную положительную корреляцию."
+                        f"{selected_symbols[0]} and {selected_symbols[1]} have strong positive correlation."
                     )
                 else:
                     st.success(
-                        f"Акции {selected_symbols[0]} и {selected_symbols[1]} имеют сильную отрицательную корреляцию."
+                        f"{selected_symbols[0]} and {selected_symbols[1]} have strong negative correlation."
                     )
             elif abs(test_result["statistic"]) > 0.3:
                 st.info(
-                    f"Акции {selected_symbols[0]} и {selected_symbols[1]} имеют умеренную корреляцию."
+                    f"{selected_symbols[0]} and {selected_symbols[1]} have moderate correlation."
                 )
             else:
                 st.success(
-                    f"Акции {selected_symbols[0]} и {selected_symbols[1]} имеют слабую корреляцию."
+                    f"{selected_symbols[0]} and {selected_symbols[1]} have weak correlation."
                 )
 
             if test_result["p_value"] < alpha:
-                st.write("Корреляция статистически значима.")
+                st.write("Correlation is statistically significant.")
             else:
-                st.write("Корреляция статистически не значима.")
+                st.write("Correlation is not statistically significant.")
             st.write(test_result["conclusion"])
 
-            # Добавляем пояснение
+            
             st.info(
                 """
-            **Что это значит?**
-            Корреляция измеряет, насколько сильно связаны доходности двух акций:
-            - **Положительная корреляция**: акции имеют тенденцию двигаться в одном направлении.
-            - **Отрицательная корреляция**: акции имеют тенденцию двигаться в противоположных направлениях.
-            - **Низкая корреляция**: движения акций слабо связаны.
-            Для диверсификации портфеля обычно рекомендуется выбирать акции с низкой корреляцией.
+            **What does this mean?**
+            Correlation measures how closely the returns of two stocks move together:
+            - **Positive correlation**: stocks tend to move in the same direction.
+            - **Negative correlation**: stocks tend to move in opposite directions.
+            - **Low correlation**: movements are weakly related.
+            For diversification it is usually better to choose stocks with low correlation.
             """
             )
 
-        # --- Отображение результатов для сравнения средних ---
+        
         elif test_type == "mean_comparison":
             st.write(
-                f"**Сравнение средней доходности акций {selected_symbols[0]} и {selected_symbols[1]}**"
+                f"**Mean return comparison for {selected_symbols[0]} and {selected_symbols[1]}**"
             )
             st.write(
-                f"Средняя доходность {selected_symbols[0]}: {test_result.get('mean1', 0):.6f}"
+                f"Mean return {selected_symbols[0]}: {test_result.get('mean1', 0):.6f}"
             )
             st.write(
-                f"Средняя доходность {selected_symbols[1]}: {test_result.get('mean2', 0):.6f}"
+                f"Mean return {selected_symbols[1]}: {test_result.get('mean2', 0):.6f}"
             )
-            st.write(f"Статистика t-теста: {test_result['statistic']:.4f}")
-            st.write(f"P-значение: {test_result['p_value']:.4f}")
-            st.write(f"Уровень значимости (alpha): {alpha}")
+            st.write(f"t-test statistic: {test_result['statistic']:.4f}")
+            st.write(f"P-value: {test_result['p_value']:.4f}")
+            st.write(f"Significance level (alpha): {alpha}")
 
-            # Вывод результата
+            
             if test_result["p_value"] < alpha:
-                st.success("Средние доходности статистически различны.")
+                st.success("Mean returns are significantly different.")
                 if test_result.get("mean1", 0) > test_result.get("mean2", 0):
                     st.write(
-                        f"Акция {selected_symbols[0]} показывает статистически более высокую доходность."
+                        f"{selected_symbols[0]} shows a statistically higher return."
                     )
                 else:
                     st.write(
-                        f"Акция {selected_symbols[1]} показывает статистически более высокую доходность."
+                        f"{selected_symbols[1]} shows a statistically higher return."
                     )
             else:
-                st.info("Средние доходности статистически не различаются.")
+                st.info("Mean returns are not significantly different.")
             st.write(test_result["conclusion"])
 
-            # Добавляем пояснение
+            
             st.info(
                 """
-            **Что это значит?**
-            Тест сравнивает среднюю доходность двух акций, чтобы определить, есть ли статистически значимая разница:
-            - Если p-значение < alpha, то разница в средней доходности статистически значима.
-            - Если p-значение >= alpha, то нет достаточных доказательств, чтобы утверждать, что средние доходности различаются.
-            Этот тест может помочь при выборе между двумя акциями, но следует учитывать и другие факторы, такие как риск.
+            **What does this mean?**
+            This test compares the mean returns of two stocks to see if the difference is statistically significant:
+            - If the p-value < alpha, the difference is significant.
+            - If the p-value >= alpha, there is insufficient evidence to claim the means differ.
+            Use this test along with other factors such as risk when choosing between stocks.
             """
             )
 
     else:
         if test_result and "error" in test_result:
-            st.error(f"Ошибка при выполнении теста: {test_result['error']}")
+            st.error(f"Error running test: {test_result['error']}")
         else:
-            st.error("Не удалось выполнить тест. Проверьте соединение с API.")
+            st.error("Could not run the test. Check API connection.")
 else:
-    st.info("Выберите параметры теста и нажмите 'Выполнить тест'.")
+    st.info("Select parameters and click 'Run test'.")

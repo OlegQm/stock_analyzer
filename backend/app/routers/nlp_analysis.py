@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/stocks/nlp-analysis")
 async def nlp_analysis(request: NLPAnalysisRequest):
-    """Анализ акций с помощью NLP"""
+    """Analyze stocks using NLP"""
     return await nlp_analysis_service(request)
