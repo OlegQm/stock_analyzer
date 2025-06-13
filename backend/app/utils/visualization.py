@@ -3,7 +3,7 @@ from app.utils.data_preprocessor import calculate_technical_indicators
 import pandas as pd
 
 def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicators=None):
-    """Создать данные для визуализации"""
+    """Create data for visualization"""
     result = {
         "chart_type": chart_type,
         "symbols": symbols,
@@ -14,16 +14,12 @@ def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicat
 
     try:
         if chart_type == "price":
-            # График цен акций
             for symbol in symbols:
                 data = get_stock_data(symbol, period, interval)
                 df = pd.DataFrame(data)
 
-                # Добавляем технические индикаторы, если запрошены
                 if indicators:
                     tech_indicators = calculate_technical_indicators(data, indicators)
-
-                    # Преобразуем индикаторы в формат для графика
                     indicator_data = {}
                     for indicator_name, indicator_values in tech_indicators.items():
                         indicator_data[indicator_name] = indicator_values
@@ -44,14 +40,11 @@ def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicat
                     })
 
         elif chart_type == "returns":
-            # График доходности акций
             for symbol in symbols:
                 data = get_stock_data(symbol, period, interval)
                 df = pd.DataFrame(data)
                 df['Date'] = pd.to_datetime(df['Date'])
                 df.set_index('Date', inplace=True)
-
-                # Рассчитываем дневную доходность
                 df['Returns'] = df['Close'].pct_change().fillna(0)
                 df['Cumulative_Returns'] = (1 + df['Returns']).cumprod() - 1
 
@@ -66,7 +59,6 @@ def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicat
                 })
 
         elif chart_type == "correlation":
-            # Корреляционная матрица
             all_returns = pd.DataFrame()
 
             for symbol in symbols:
@@ -74,14 +66,8 @@ def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicat
                 df = pd.DataFrame(data)
                 df['Date'] = pd.to_datetime(df['Date'])
                 df.set_index('Date', inplace=True)
-
-                # Рассчитываем дневную доходность
                 all_returns[symbol] = df['Close'].pct_change().fillna(0)
-
-            # Рассчитываем корреляционную матрицу
             corr_matrix = all_returns.corr().round(2)
-
-            # Преобразуем в формат для тепловой карты
             corr_data = []
             for i, symbol1 in enumerate(symbols):
                 for j, symbol2 in enumerate(symbols):
@@ -94,7 +80,7 @@ def generate_chart_data(symbols, chart_type, period="1y", interval="1d", indicat
             result["data"] = corr_data
 
         else:
-            raise ValueError(f"Неизвестный тип графика: {chart_type}")
+            raise ValueError(f"Unknown chart type: {chart_type}")
 
     except Exception as e:
         result["error"] = str(e)

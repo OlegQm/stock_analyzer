@@ -7,35 +7,39 @@ load_dotenv()
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(
-    page_title="Финансовый анализатор",
+    page_title="Financial Analyzer",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 def main():
-    st.title("📈 Финансовый анализатор данных Yahoo Finance")
+    st.title("📈 Yahoo Finance Data Analyzer")
 
-    st.markdown("""
-    Это приложение позволяет анализировать финансовые данные акций с Yahoo Finance.
+    st.markdown(
+        """
+        This application allows you to analyze stock market data from Yahoo Finance.
 
-    ### Возможности:
-    - Получение исторических данных акций
-    - Технический анализ с использованием различных индикаторов
-    - Анализ с помощью естественного языка
-    - Визуализация данных и трендов
-    - Тестирование финансовых гипотез
+        ### Features:
+        - Retrieve historical stock data
+        - Perform technical analysis using various indicators
+        - Analyze data with natural language
+        - Visualize data and trends
+        - Test financial hypotheses
 
-    Выберите нужный раздел в меню слева.
-    """)
+        Select a section from the menu on the left.
+        """
+    )
 
-    st.info("""
-    **Как начать работу:**
-    1. Перейдите на страницу "Данные акций" для просмотра исторических данных
-    2. Используйте "Технический анализ" для расчета индикаторов
-    3. Визуализируйте данные на странице "Визуализация"
-    4. Проверяйте гипотезы на странице "Тестирование гипотез"
-    """)
+    st.info(
+        """
+        **Getting started:**
+        1. Go to the "Stock Data" page to view historical data
+        2. Use "Technical Analysis" to calculate indicators
+        3. Visualize data on the "Visualization" page
+        4. Check hypotheses on the "Hypothesis Testing" page
+        """
+    )
 
 if __name__ == "__main__":
     main()

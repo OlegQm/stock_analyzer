@@ -3,7 +3,7 @@ from app.models import VisualizationRequest
 from app.utils.visualization import generate_chart_data
 
 async def create_visualization_service(request: VisualizationRequest):
-    """Создать данные для визуализации"""
+    """Create data for visualization"""
     try:
         chart_data = generate_chart_data(
             request.symbols,

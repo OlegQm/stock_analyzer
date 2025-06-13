@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/stocks/visualization")
 async def create_visualization(request: VisualizationRequest):
-    """Создать данные для визуализации"""
+    """Create data for visualization"""
     return await create_visualization_service(request)

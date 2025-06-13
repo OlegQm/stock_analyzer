@@ -1,7 +1,7 @@
 import yfinance as yf
 
 def get_stock_data(symbol, period="1y", interval="1d"):
-    """Получить исторические данные акции с Yahoo Finance"""
+    """Retrieve historical stock data from Yahoo Finance"""
     try:
         ticker = yf.Ticker(symbol)
         df = ticker.history(period=period, interval=interval)
@@ -15,10 +15,10 @@ def get_stock_data(symbol, period="1y", interval="1d"):
         
         return df.to_dict(orient='records')
     except Exception as e:
-        raise Exception(f"Ошибка при получении данных для {symbol}: {str(e)}")
+        raise Exception(f"Error retrieving data for {symbol}: {str(e)}")
 
 def get_stock_info(symbol):
-    """Получить информацию об акции"""
+    """Get stock information"""
     try:
         ticker = yf.Ticker(symbol)
         info = ticker.info
@@ -43,5 +43,5 @@ def get_stock_info(symbol):
         
         return relevant_info
     except Exception as e:
-        raise Exception(f"Ошибка при получении информации для {symbol}: {str(e)}")
+        raise Exception(f"Error retrieving info for {symbol}: {str(e)}")
     
